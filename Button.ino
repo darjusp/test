@@ -1,6 +1,7 @@
+#include <Encoder.h>
 
-const int buttonPinA = 2; 
-const int buttonPinB = 3; 
+const int buttonPinA = 9; 
+const int buttonPinB = 10; 
 const int buttonPinC = 4; 
 const int buttonPinD = 5;
 const int buttonPinCent = 7;
@@ -20,13 +21,9 @@ int lastButtonState = LOW;
 unsigned long lastDebounceTime = 0;
 unsigned long debounceDelay = 100; 
 
-int val;
-int encoder0PinA = 9;
-int encoder0PinB = 10;
-int encoder0Pos = 0;
-int encoder0PinALast = LOW;
-int n = LOW;
-
+int oldPosition = 0;
+// Initialize encoder pins
+Encoder myEnc(2, 3);
 void setup() {
   // initialize the LED pin as an output:
   pinMode(ledPin, OUTPUT);
@@ -36,8 +33,6 @@ void setup() {
   pinMode(buttonPinC, INPUT);
   pinMode(buttonPinD, INPUT);
   pinMode(buttonPinCent, INPUT);
-  pinMode (encoder0PinA, INPUT);
-  pinMode (encoder0PinB, INPUT);
   Serial.begin (9600);
 }
 
@@ -100,20 +95,11 @@ void loop() {
     }
   }
   lastButtonState = buttonWhich;
- /* 
-  // Rotate button
-  n = digitalRead(encoder0PinA);
-  if ((encoder0PinALast == LOW) && (n == HIGH)) {
-    if (digitalRead(encoder0PinB) == HIGH) {
-      Serial.println("Volume Down");
-      encoder0Pos--;
-    } else {
-       if (digitalRead(encoder0PinA) == HIGH) {
-        Serial.println("Volume UP");
-        encoder0Pos++;
-       }
-    }
-    Serial.println(encoder0Pos);
+  // Rotate Button
+  long newPosition = myEnc.read();
+  if (newPosition != oldPosition) {
+    oldPosition = newPosition;
+    Serial.println(newPosition);
   }
-  encoder0PinALast = n;*/
+  
 }
