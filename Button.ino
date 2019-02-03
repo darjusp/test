@@ -1,15 +1,15 @@
-// constants won't change. They're used here to set pin numbers:
+
 const int buttonPinA = 2; 
 const int buttonPinB = 3; 
 const int buttonPinC = 4; 
-const int buttonPinD = 5;// the number of the pushbutton pin
-const int buttonPinCent = 7;// the number of the pushbutton pin
-const int ledPin =  13;      // the number of the LED pin
+const int buttonPinD = 5;
+const int buttonPinCent = 7;
+const int ledPin =  13;
 
 // variables will change:
-int buttonStateA = 0;         // variable for reading the pushbutton status
+int buttonStateA = 0;
 int buttonStateB = 0; 
-int buttonStateC = 0;         // variable for reading the pushbutton status
+int buttonStateC = 0;
 int buttonStateD = 0;
 int buttonStateCent = 0;  
 int buttonWhich = 0;
@@ -17,7 +17,7 @@ int buttonWhich = 0;
 int buttonState;
 int lastButtonState = LOW;  
 
-unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long lastDebounceTime = 0;
 unsigned long debounceDelay = 100; 
 
 int val;
@@ -31,13 +31,13 @@ void setup() {
   // initialize the LED pin as an output:
   pinMode(ledPin, OUTPUT);
   // initialize the pushbutton pin as an input:
-  pinMode(buttonPinA, INPUT_PULLUP);
-  pinMode(buttonPinB, INPUT_PULLUP);
-  pinMode(buttonPinC, INPUT_PULLUP);
-  pinMode(buttonPinD, INPUT_PULLUP);
-  pinMode(buttonPinCent, INPUT_PULLUP);
-  pinMode (encoder0PinA, INPUT_PULLUP);
-  pinMode (encoder0PinB, INPUT_PULLUP);
+  pinMode(buttonPinA, INPUT);
+  pinMode(buttonPinB, INPUT);
+  pinMode(buttonPinC, INPUT);
+  pinMode(buttonPinD, INPUT);
+  pinMode(buttonPinCent, INPUT);
+  pinMode (encoder0PinA, INPUT);
+  pinMode (encoder0PinB, INPUT);
   Serial.begin (9600);
 }
 
@@ -52,21 +52,22 @@ void loop() {
   buttonWhich = 0;
   
   // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
-  if (buttonStateA == LOW) {
-    buttonWhich = 1;
-  }
-  if (buttonStateB == LOW) {
-    buttonWhich = 2;
-  }
-  if (buttonStateC == LOW) {
-    buttonWhich = 3;
-  }
-  if (buttonStateD == LOW) {
-    buttonWhich = 4;
-  }
-  if (buttonStateCent == LOW) {
+  if (buttonStateCent == HIGH) {
     buttonWhich = 5;
   }
+  if (buttonStateA == HIGH) {
+    buttonWhich = 1;
+  }
+  if (buttonStateB == HIGH) {
+    buttonWhich = 2;
+  }
+  if (buttonStateC == HIGH) {
+    buttonWhich = 3;
+  }
+  if (buttonStateD == HIGH) {
+    buttonWhich = 4;
+  }
+
   if (buttonWhich != lastButtonState) {
     lastDebounceTime = millis();
   }
@@ -99,11 +100,11 @@ void loop() {
     }
   }
   lastButtonState = buttonWhich;
-  
+ /* 
   // Rotate button
   n = digitalRead(encoder0PinA);
   if ((encoder0PinALast == LOW) && (n == HIGH)) {
-    if (digitalRead(encoder0PinB) == LOW) {
+    if (digitalRead(encoder0PinB) == HIGH) {
       Serial.println("Volume Down");
       encoder0Pos--;
     } else {
@@ -114,5 +115,5 @@ void loop() {
     }
     Serial.println(encoder0Pos);
   }
-  encoder0PinALast = n;
+  encoder0PinALast = n;*/
 }
