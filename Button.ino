@@ -16,7 +16,7 @@ int buttonStateCent = 0;
 int buttonWhich = 0;
 
 int buttonState;
-int lastButtonState = LOW;  
+int lastButtonState;  
 
 unsigned long lastDebounceTime = 0;
 unsigned long debounceDelay = 100; 
