@@ -1,10 +1,10 @@
 #include <Encoder.h>
 
-const int buttonPinA = 9; 
-const int buttonPinB = 10; 
-const int buttonPinC = 4; 
-const int buttonPinD = 5;
-const int buttonPinCent = 7;
+const int buttonPinA = 8; 
+const int buttonPinB = 9; 
+const int buttonPinC = 10; 
+const int buttonPinD = 11;
+const int buttonPinCent = 12;
 const int ledPin =  13;
 
 // variables will change:
@@ -16,10 +16,12 @@ int buttonStateCent = 0;
 int buttonWhich = 0;
 
 int buttonState;
-int lastButtonState;  
+int lastButtonState;   
+boolean buttonChange = false;   
 
 unsigned long lastDebounceTime = 0;
 unsigned long debounceDelay = 100; 
+unsigned long longPush = 1000;
 
 int oldPosition = 0;
 // Initialize encoder pins
@@ -62,35 +64,67 @@ void loop() {
   if (buttonStateD == HIGH) {
     buttonWhich = 4;
   }
-
-  if (buttonWhich != lastButtonState) {
+  if ((lastButtonState>0) && (buttonWhich!= lastButtonState)) {
     lastDebounceTime = millis();
+    buttonChange = true;
+    Serial.print("lastButtonState: ");
+    Serial.println(lastButtonState);
+    Serial.print("buttonWhich: ");
+    Serial.println(buttonWhich);
   }
-  if ((millis() - lastDebounceTime) > debounceDelay) {
+  if (((millis() - lastDebounceTime) > debounceDelay) && buttonChange==true) {
     switch (buttonWhich){
       case 1:
-        Serial.println("A Button");
-        digitalWrite(ledPin, HIGH);
+        if((millis() - lastDebounceTime) > longPush){
+          Serial.println("Long A Button");
+        }else{
+          Serial.println("A Button");
+          digitalWrite(ledPin, HIGH);
+        }
+        buttonChange = false;
         break;
       case 2:
-        Serial.println("B Button");
-        digitalWrite(ledPin, HIGH);
+        if((millis() - lastDebounceTime) > longPush){
+          Serial.println("Long B Button");
+        }else{
+          Serial.println("B Button");
+          digitalWrite(ledPin, HIGH);
+        }
+        buttonChange = false;
         break;
       case 3:
-        Serial.println("C Button");
-        digitalWrite(ledPin, HIGH);
+        if((millis() - lastDebounceTime) > longPush){
+          Serial.println("Long C Button");
+        }else{
+          Serial.println("C Button");
+          digitalWrite(ledPin, HIGH);
+        }
+        buttonChange = false;
         break;
       case 4:
-        Serial.println("D Button");
-        digitalWrite(ledPin, HIGH);
+      if(buttonChange){
+          if((millis() - lastDebounceTime) > longPush){
+            Serial.println("Long D Button");
+          }else{
+            Serial.println("D Button");
+            digitalWrite(ledPin, HIGH);
+          }
+        }
+        buttonChange = false;
         break;
       case 5:
-        Serial.println("Center Button");
-        digitalWrite(ledPin, HIGH);
+        if((millis() - lastDebounceTime) > longPush){
+          Serial.println("Long Center Button");
+        }else{
+          Serial.println("Center Button");
+          digitalWrite(ledPin, HIGH);
+        }
+        buttonChange = false;
         break;
       default:
         // turn LED off:
         digitalWrite(ledPin, LOW);
+        buttonChange = false;
         break;
     }
   }
