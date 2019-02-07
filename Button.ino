@@ -71,6 +71,7 @@ void loop() {
   }
   if ((lastButtonState > 0) && (buttonWhich == 0)) {
     // button was released
+    lastDebounceTime = millis();
     buttonReleased = true;
   }
   //if (((millis() - lastDebounceTime) > debounceDelay) && buttonReleased == true) {
