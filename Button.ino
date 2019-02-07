@@ -1,26 +1,27 @@
 #include <Encoder.h>
 
-const int buttonPinA = 8; 
-const int buttonPinB = 9; 
-const int buttonPinC = 10; 
+const int buttonPinA = 8;
+const int buttonPinB = 9;
+const int buttonPinC = 10;
 const int buttonPinD = 11;
 const int buttonPinCent = 12;
 const int ledPin =  13;
 
 // variables will change:
 int buttonStateA = 0;
-int buttonStateB = 0; 
+int buttonStateB = 0;
 int buttonStateC = 0;
 int buttonStateD = 0;
-int buttonStateCent = 0;  
+int buttonStateCent = 0;
 int buttonWhich = 0;
 
 int buttonState;
-int lastButtonState;   
-boolean buttonChange = false;   
+int lastButtonState = 0;
+boolean buttonReleased = false;
 
 unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 100; 
+unsigned long lastPressedTime = 0;
+unsigned long debounceDelay = 100;
 unsigned long longPush = 1000;
 
 int oldPosition = 0;
@@ -47,7 +48,7 @@ void loop() {
   buttonStateD = digitalRead(buttonPinD);
   buttonStateCent = digitalRead(buttonPinCent);
   buttonWhich = 0;
-  
+
   // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
   if (buttonStateCent == HIGH) {
     buttonWhich = 5;
@@ -64,67 +65,67 @@ void loop() {
   if (buttonStateD == HIGH) {
     buttonWhich = 4;
   }
-  if ((lastButtonState>0) && (buttonWhich!= lastButtonState)) {
-    lastDebounceTime = millis();
-    buttonChange = true;
-    Serial.print("lastButtonState: ");
-    Serial.println(lastButtonState);
-    Serial.print("buttonWhich: ");
-    Serial.println(buttonWhich);
+  if ((lastButtonState == 0) && (buttonWhich > 0)) {
+    // button was pressed
+    lastPressedTime = millis();
   }
-  if (((millis() - lastDebounceTime) > debounceDelay) && buttonChange==true) {
-    switch (buttonWhich){
+  if ((lastButtonState > 0) && (buttonWhich == 0)) {
+    // button was released
+    buttonReleased = true;
+  }
+  //if (((millis() - lastDebounceTime) > debounceDelay) && buttonReleased == true) {
+  if (buttonReleased==true) {
+    switch (lastButtonState) {
       case 1:
-        if((millis() - lastDebounceTime) > longPush){
+        if ((millis() - lastPressedTime) > longPush) {
           Serial.println("Long A Button");
-        }else{
+        } else {
           Serial.println("A Button");
           digitalWrite(ledPin, HIGH);
         }
-        buttonChange = false;
+        buttonReleased = false;
         break;
       case 2:
-        if((millis() - lastDebounceTime) > longPush){
+        if ((millis() - lastPressedTime) > longPush) {
           Serial.println("Long B Button");
-        }else{
+        } else {
           Serial.println("B Button");
           digitalWrite(ledPin, HIGH);
         }
-        buttonChange = false;
+        buttonReleased = false;
         break;
       case 3:
-        if((millis() - lastDebounceTime) > longPush){
+        if ((millis() - lastPressedTime) > longPush) {
           Serial.println("Long C Button");
-        }else{
+        } else {
           Serial.println("C Button");
           digitalWrite(ledPin, HIGH);
         }
-        buttonChange = false;
+        buttonReleased = false;
         break;
       case 4:
-      if(buttonChange){
-          if((millis() - lastDebounceTime) > longPush){
-            Serial.println("Long D Button");
-          }else{
-            Serial.println("D Button");
-            digitalWrite(ledPin, HIGH);
-          }
+        if ((millis() - lastPressedTime) > longPush) {
+          Serial.println("Long D Button");
+        } else {
+          Serial.println("D Button");
+          digitalWrite(ledPin, HIGH);
         }
-        buttonChange = false;
+        buttonReleased = false;
         break;
       case 5:
-        if((millis() - lastDebounceTime) > longPush){
+        if ((millis() - lastPressedTime) > longPush) {
           Serial.println("Long Center Button");
-        }else{
+        } else {
           Serial.println("Center Button");
           digitalWrite(ledPin, HIGH);
         }
-        buttonChange = false;
+        buttonReleased = false;
         break;
       default:
         // turn LED off:
+        Serial.println("default");
         digitalWrite(ledPin, LOW);
-        buttonChange = false;
+        buttonReleased = false;
         break;
     }
   }
@@ -135,5 +136,5 @@ void loop() {
     oldPosition = newPosition;
     Serial.println(newPosition);
   }
-  
+
 }
