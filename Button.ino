@@ -13,15 +13,14 @@ int buttonStateB = 0;
 int buttonStateC = 0;
 int buttonStateD = 0;
 int buttonStateCent = 0;
+int buttonStatus = 0; // 0 - neutral, 1 - pressed, 2 - released
 int buttonWhich = 0;
 
 int buttonState;
 int lastButtonState = 0;
-boolean buttonReleased = false;
-
-unsigned long lastDebounceTime = 0;
+boolean buttonNotReleased = false;
 unsigned long lastPressedTime = 0;
-unsigned long debounceDelay = 100;
+unsigned long debounceDelay = 10;
 unsigned long longPush = 1000;
 
 int oldPosition = 0;
@@ -65,17 +64,35 @@ void loop() {
   if (buttonStateD == HIGH) {
     buttonWhich = 4;
   }
-  if ((lastButtonState == 0) && (buttonWhich > 0)) {
+  if ((lastButtonState == 0) && (buttonWhich > 0) && (buttonStatus == 0) && (buttonNotReleased == false)) {
     // button was pressed
+    buttonStatus = 1;
     lastPressedTime = millis();
   }
-  if ((lastButtonState > 0) && (buttonWhich == 0)) {
-    // button was released
-    lastDebounceTime = millis();
-    buttonReleased = true;
+  
+  if ((millis() - lastPressedTime) > longPush && (buttonStatus == 1)) {
+    // its long press lets imitate button release
+    buttonStatus = 2;
+    buttonWhich = 0;
+    buttonNotReleased = true;
   }
-  //if (((millis() - lastDebounceTime) > debounceDelay) && buttonReleased == true) {
-  if (buttonReleased==true) {
+
+  if ((lastButtonState > 0) && (buttonWhich == 0) && (buttonStatus == 1) ) {
+    // button released from normal press
+    if (buttonNotReleased == true){
+      buttonNotReleased = false;
+    }else{
+    // button was released
+      buttonStatus = 2;
+    }
+  }
+  if (lastButtonState == 0){
+    // button released from long press
+    buttonNotReleased = false;
+  }
+  
+  if (((millis() - lastPressedTime) > debounceDelay) && buttonStatus == 2) {
+  //if (buttonReleased==true) {
     switch (lastButtonState) {
       case 1:
         if ((millis() - lastPressedTime) > longPush) {
@@ -84,7 +101,7 @@ void loop() {
           Serial.println("A Button");
           digitalWrite(ledPin, HIGH);
         }
-        buttonReleased = false;
+        buttonStatus = 0;
         break;
       case 2:
         if ((millis() - lastPressedTime) > longPush) {
@@ -93,7 +110,7 @@ void loop() {
           Serial.println("B Button");
           digitalWrite(ledPin, HIGH);
         }
-        buttonReleased = false;
+        buttonStatus = 0;
         break;
       case 3:
         if ((millis() - lastPressedTime) > longPush) {
@@ -102,7 +119,7 @@ void loop() {
           Serial.println("C Button");
           digitalWrite(ledPin, HIGH);
         }
-        buttonReleased = false;
+        buttonStatus = 0;
         break;
       case 4:
         if ((millis() - lastPressedTime) > longPush) {
@@ -111,7 +128,7 @@ void loop() {
           Serial.println("D Button");
           digitalWrite(ledPin, HIGH);
         }
-        buttonReleased = false;
+        buttonStatus = 0;
         break;
       case 5:
         if ((millis() - lastPressedTime) > longPush) {
@@ -120,17 +137,18 @@ void loop() {
           Serial.println("Center Button");
           digitalWrite(ledPin, HIGH);
         }
-        buttonReleased = false;
+        buttonStatus = 0;
         break;
       default:
         // turn LED off:
         Serial.println("default");
         digitalWrite(ledPin, LOW);
-        buttonReleased = false;
+        buttonStatus = 0;
         break;
     }
   }
   lastButtonState = buttonWhich;
+  
   // Rotate Button
   long newPosition = myEnc.read();
   if (newPosition != oldPosition) {
