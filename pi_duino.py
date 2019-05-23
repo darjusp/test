@@ -3,6 +3,7 @@ from mpd import MPDClient
 
 client = MPDClient()
 client.connect("localhost", 6600)
+print(client.mpd_version) 
 client.add("a2002011001-e02.wav")
 client.play()
 
