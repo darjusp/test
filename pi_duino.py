@@ -2,6 +2,7 @@ import serial
 from mpd import MPDClient
 
 client = MPDClient()
+client.connect("localhost", 6600)
 client.add("a2002011001-e02.wav")
 client.play()
 
